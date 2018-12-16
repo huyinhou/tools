@@ -1,0 +1,175 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>中国象棋</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.7.1/svg.js"></script>
+    <style type="text/css">
+    #chessboard {
+        width: 480px;
+        height: 540px;
+        margin: 40px;
+        position: fixed;
+        top: 0px;
+    }
+    #chesspiece {
+        position: fixed;
+        width: 560px;
+        height: 620px;
+        top: 0px;
+        background-color: rgba(255, 255, 255, 0);
+        /* opacity: 0.1; */
+    }
+    .container {
+        height: 800px;;
+        width: 720px;
+    }
+    </style>
+</head>
+<body>
+    <div id="chessboard"></div>
+    <div id="chesspiece"></div>
+</body>
+<script type="text/javascript" >
+const width = 60, height = 60;  // 每一格大小
+const rows = 9, cols = 8;   // 9列10行格子
+var x = new Array(), y = new Array(); // 水平为x，竖直为y
+
+for (var i = 0; i <= cols; i++) {
+    x.push(i * width);
+}
+for (var i = 0; i <= rows; i++) {
+    y.push(i * height);
+}
+
+// 绘制象棋面板
+function drawChessBoard(draw) {
+    // 绘制横线
+    draw.rect(cols*width, rows* height).fill('white').stroke({ color: 'black', width: 4 });
+    for (var i = 1; i < rows; i++) {
+        draw.line(x[0],  y[i], x[cols], y[i]).stroke({ color: 'black', width: 2});
+    }
+    // 绘制上竖线
+    for (var i = 1; i < cols; i++) {
+        draw.line(x[i], y[0], x[i], y[4]).stroke({ color: 'black', width: 2});
+    }
+    // 绘制下竖线
+    for (var i = 1; i < cols; i++) {
+        draw.line(x[i], y[5], x[i], y[rows]).stroke({ color: 'black', width: 2});
+    }
+    // 上方对角线
+    draw.line(x[3], y[0], x[5], y[2]).stroke({ color: 'black', width: 2, dasharray: "10 10"});
+    draw.line(x[5], y[0], x[3], y[2]).stroke({ color: 'black', width: 2, dasharray: "10 10"});
+    // 下方对角线
+    draw.line(x[3], y[7], x[5], y[9]).stroke({ color: 'black', width: 2, dasharray: "10 10"});
+    draw.line(x[5], y[7], x[3], y[9]).stroke({ color: 'black', width: 2, dasharray: "10 10"});
+    
+    // 上方两个炮
+    drawCorner(draw, x[1], y[2], 3);
+    drawCorner(draw, x[7], y[2], 3);
+    // 上方五个兵
+    drawCorner(draw, x[0], y[3], 2);
+    drawCorner(draw, x[2], y[3], 3);
+    drawCorner(draw, x[4], y[3], 3);
+    drawCorner(draw, x[6], y[3], 3);
+    drawCorner(draw, x[8], y[3], 1);
+
+    // 下方五个兵
+    drawCorner(draw, x[0], y[6], 2);
+    drawCorner(draw, x[2], y[6], 3);
+    drawCorner(draw, x[4], y[6], 3);
+    drawCorner(draw, x[6], y[6], 3);
+    drawCorner(draw, x[8], y[6], 1);
+    // 下方两个炮
+    drawCorner(draw, x[1], y[8], 3);
+    drawCorner(draw, x[7], y[8], 3);
+
+    // 楚河 汉界 86 * 40
+    draw.plain("河楚").attr({rotate: 90, "font-size": 40}).move(86, 4 * height + (height - 40) / 2);
+    draw.plain("汉界").attr({rotate: 270, "font-size": 40}).move(360, 4 * height + (height - 40) / 2);
+}
+
+// 绘制小拐角
+function drawCorner(draw, x, y, flag) {
+    var x1=x-20, x2=x-6, x3=x+6, x4=x+20;
+    var y1=y-20, y2=y-6, y3=y+6, y4=y+20;
+
+    if (flag & 1) {
+        // 左上
+        draw.polyline(x1+','+y2+' '+x2+','+y2+' '+x2+','+y1).fill('none').stroke({ color: 'black', width: 2});
+        // 左下
+        draw.polyline(x1+','+y3+' '+x2+','+y3+' '+x2+','+y4).fill('none').stroke({ color: 'black', width: 2});
+    }
+    if (flag & 2) {
+        // 右上
+        draw.polyline(x3+','+y1+' '+x3+','+y2+' '+x4+','+y2).fill('none').stroke({ color: 'black', width: 2});
+        // 右下
+        draw.polyline(x3+','+y4+' '+x3+','+y3+' '+x4+','+y3).fill('none').stroke({ color: 'black', width: 2});
+    }
+}
+
+const chessPieceMap = {
+    // 红方
+    "K": {name: "帅", color: "red"},
+    "J": {name: "車", color: "red"},
+    "M": {name: "馬", color: "red"},
+    "P": {name: "炮", color: "red"},
+    "X": {name: "相", color: "red"},
+    "S": {name: "仕", color: "red"},
+    "B": {name: "兵", color: "red"},
+    // 黑方
+    "k": {name: "將", color: "black"},
+    "j": {name: "車", color: "black"},
+    "m": {name: "馬", color: "black"},
+    "p": {name: "炮", color: "black"},
+    "x": {name: "象", color: "black"},
+    "s": {name: "士", color: "black"},
+    "b": {name: "卒", color: "black"},
+}
+
+function drawChessPiece(draw, seqs) {
+    var radius = width / 2 - 3; // 棋子半径
+    // draw.rect(x[cols] + 80, y[rows] + 80).fill({color:"white"});
+    for (var index = 0; index < seqs.length; index++) {
+        var val = seqs.charAt(index);
+        if (!chessPieceMap.hasOwnProperty(val)) {
+            continue;
+        }
+        var p = chessPieceMap[val];
+        var i = index % 9, j = parseInt(index / 9);
+        console.log(i, j);
+        drawOnePiece(draw, x[i] + 40, y[j] + 40, radius, p.name, p.color);
+    }
+}
+
+function drawOnePiece(draw, x, y, r, val, clr) {
+    var offx=x-r, offy=y-r;
+    // console.log(x, y, r, val, clr, offx, offy);
+    draw.circle(r * 2).fill({color: "#ffffb3"}).stroke({color:clr, width: 2}).move(offx, offy);
+    draw.circle((r-3) * 2).fill({color: "#ffffb3"}).stroke({color:clr, width: 2}).move(offx+3, offy+3);
+    draw.plain(val).font({size: 34}).fill({color: clr}).move(offx+11, offy+9);
+}
+
+window.onload = function () {
+    if (!SVG.supported) {
+        alert('SVG not supported');
+        return;
+    }
+    var draw = SVG('chessboard');
+    drawChessBoard(draw);
+    draw = SVG("chesspiece");
+    drawChessPiece(draw,
+        "JMXSKSXMJ" +
+        "000000000" +
+        "0P00000P0" + 
+        "B0B0B0B0B" + 
+        "000000000" + 
+        "000000000" + 
+        "b0b0b0b0b" + 
+        "0p00000p0" +
+        "000000000" +
+        "jmxsksxmj");
+}
+</script>
+</html>
