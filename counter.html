@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>计次器</title>
+    </head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+        .container {
+            white-space: nowrap;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        } 
+        .selrange {
+            width: 210px;
+            height: 100px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            text-align: center;
+        }
+        .counter {
+            display: inline-block;
+            width: 100%;
+            height: 200px;
+            font-size: 100px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            vertical-align: middle;
+            line-height: 200px;
+            color: red;
+        }
+    </style>
+    <body>
+        <div id="modediv" class="container">
+            <table class="selrange">
+                <tr><th><span>设置计数范围：</span></th></tr>
+                <tr><td><span>起始值：</span><input id="first" name="first" type="number" value="1"></td></tr>
+                <tr><td><span>结束值：</span><input id="last" name="last" type="number" value="100"></td></tr>
+                <tr><td><input type="button" style="font-size:20px;" value="开始" onclick="showCounter();"></td></tr>
+            </table>
+        </div>
+        <div id="counterdiv" class="container" style="visibility:hidden;">
+            <p id="counter" class="counter">200</p>
+        </div>
+    </body>
+    <script type="text/javascript">
+        var first = 0, last = 100; step = 1;
+        function showCounter() {
+            var val = document.getElementById("first").value;
+            first=parseInt(val);
+            console.log(first);
+            
+            val = document.getElementById("last").value;
+            last = parseInt(val)
+            console.log(last);
+            
+            if (first >= last) {
+                step = -1;
+            }
+
+            setNumber();
+
+            var div = document.getElementById("modediv");
+            div.style.visibility="hidden";
+            div = document.getElementById("counterdiv");
+            div.style.visibility = "visible";
+        }
+
+        function setNumber() {
+            if ((step > 0 && first > last) || (step < 0 && first < last)) {
+                return;
+            }
+            var p =  document.getElementById("counter")
+            p.innerText = first.toString();
+            first = first + step;
+        }
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 13) {
+                setNumber();
+            }
+        }
+    </script>
+</html>
